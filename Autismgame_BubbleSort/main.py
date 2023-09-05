@@ -1,6 +1,6 @@
 import pygame
 import random
-from pygame import mixer  # for music & sound effects
+from pygame import mixer  # for music
 
 from pygame import VIDEORESIZE
 
@@ -9,11 +9,19 @@ pygame.init()
 
 # create the screen
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+screen_image = pygame.image.load('bubblesort_game_screen.jpg')
+full_screen_image = pygame.image.load('bubblesort_game_fullscreen.png')
+# screen_image = pygame.image.load('game_bg.jpg')
 
 # Title and Icon
 pygame.display.set_caption("Bubble Sort")
 icon = pygame.image.load('Diamond_Block-MC-Square.png')
 pygame.display.set_icon(icon)
+
+# GameOver
+bg = pygame.image.load('End Screen.jpg')
+game_over_text = pygame.font.Font('freesansbold.ttf', 63)
+game_over_text_fs = pygame.font.Font('freesansbold.ttf', 72)
 
 # Player
 playerImg = pygame.image.load('DOT-16.png')
@@ -25,35 +33,30 @@ tmpX = 0
 tmpY = 0
 playerScore = 0
 player_rect = playerImg.get_rect()
-bg = pygame.image.load('white-cloud-blue-sky-sea.jpg')
-sad = pygame.image.load('sad_balloon (2).png')
-game_over_text = pygame.font.Font('freesansbold.ttf', 63)
 
 
 def show_game_over():
-    game_over = game_over_text.render("GAME OVER ", True, (0, 0, 0))
-
-    scaled_background = pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
-    screen.blit(scaled_background, (0, 0))
-
-    screen.blit(sad, ((2 * screen.get_width() // 3), screen.get_height() - 520))
-    screen.blit(sad, ((17.5 * screen.get_width() // 20), screen.get_height() - 297))
-    # screen.blit(sad, (screen.get_width()-705, 437))
-    # screen.blit(sad, ((screen.get_width() // 3) + 100, screen.get_height() - 520))
-    # screen.blit(sad, ((689, screen.get_height() - 520)))
-    # screen.blit(sad, ((4.37 * screen.get_width() // 5), screen.get_height() - 200))
-    screen.blit(sad, ((1.2 * screen.get_width() // 13), screen.get_height() - 150))
-    screen.blit(sad, (screen.get_width() - 750, 100))
-    screen.blit(sad, (screen.get_width() - 1165, 89))
-
-    game_over_rect = game_over.get_rect(center=((2.9 * screen.get_width() // 5) - 48, screen.get_height() - 430))
+    if fullscreen:
+        game_over = game_over_text_fs.render("GAME OVER ", True, (255, 255, 223))
+        # screen.fill((255, 255, 255))
+        scaled_background = pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
+        screen.blit(scaled_background, (0, 0))
+        show_score((2.25 * screen.get_width() // 5), (3 * screen.get_height() // 4) - 40, 32, (255, 255, 255))
+        game_over_rect = game_over.get_rect(center=((2.9 * screen.get_width() // 5) - 73, screen.get_height() - 490))
+    else:
+        game_over = game_over_text.render("GAME OVER ", True, (255, 255, 223))
+        # screen.fill((255, 255, 255))
+        scaled_background = pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
+        screen.blit(scaled_background, (0, 0))
+        show_score((2.25 * screen.get_width() // 5) - 10, (3 * screen.get_height() // 4) - 40, 25, (255, 255, 255))
+        game_over_rect = game_over.get_rect(center=((2.9 * screen.get_width() // 5) - 48, screen.get_height() - 430))
     screen.blit(game_over, game_over_rect)
-
-    show_score((2 * screen.get_width() // 5) - 7, screen.get_height() - 330, 35, (0, 0, 0))
-
     mouse_pos = pygame.mouse.get_pos()
     if game_over_rect.collidepoint(mouse_pos):
-        game_over = game_over_text.render("GAME OVER ", True, (20, 0, 225))
+        if fullscreen:
+            game_over = game_over_text_fs.render("GAME OVER ", True, (0, 0, 0))
+        else:
+            game_over = game_over_text.render("GAME OVER ", True, (0, 0, 0))
         screen.blit(game_over, game_over_rect)
 
 
@@ -78,9 +81,9 @@ clock = pygame.time.Clock()
 start = 2599
 
 
-def show_timer(x, y, text, font, text_col):
+def show_timer(text, font, text_col):
     timerImg = font.render(text, True, text_col)
-    screen.blit(timerImg, (x, y))
+    screen.blit(timerImg, ((screen.get_width() - 130), 10))
 
 
 def show_randInt(text, font, text_col):
@@ -104,17 +107,6 @@ class Balloon:
 
     def show_balloon(self):
         screen.blit(self.balloonImg, (self.balloonX, self.balloonY))
-
-    # def remove_balloons(self,x,y):
-
-    def get_ratio(self):
-        self.b_ratio_x = b1.balloonX / screen.get_width()
-        self.b_ratio_y = b1.balloonY / screen.get_height()
-        print(self.b_ratio_x)
-
-    def reposition(self):
-        self.balloonX = int(screen.get_width() * self.b_ratio_x)
-        self.balloonY = int(screen.get_height() * self.b_ratio_y)
 
 
 I = 1
@@ -199,15 +191,37 @@ def get_cord_list():
         l1.clear()
 
 
+def create_obj():
+    global b1
+    global b2
+    global b3
+    global b4
+    global b5
+    b1 = Balloon(res[0][0], res[0][1], b_img_1)
+    b2 = Balloon(res[1][0], res[1][1], b_img_2)
+    b3 = Balloon(res[2][0], res[2][1], b_img_3)
+    b4 = Balloon(res[3][0], res[3][1], b_img_4)
+    b5 = Balloon(res[4][0], res[4][1], b_img_5)
+
+
+def show_balloons():
+    b1.show_balloon()
+    b2.show_balloon()
+    b3.show_balloon()
+    b4.show_balloon()
+    b5.show_balloon()
+
+
 # Game loop
+cnt = 0
+flg1 = 0
+flg2 = 0
 flag = 0
 p_ratio_x = 0
 p_ratio_y = 0
 fullscreen = False
 running = True
-# Game over loop
 while running:
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -218,8 +232,8 @@ while running:
         show_game_over()
 
         # Display replay and exit options
-        replay_text = text_font1.render("Replay", True, (0, 0, 0))
-        exit_text = text_font1.render("Exit", True, (0, 0, 0))
+        replay_text = text_font1.render("Replay", True, (255, 255, 255))
+        exit_text = text_font1.render("Exit", True, (255, 255, 255))
         replay_rect = replay_text.get_rect(center=(screen.get_width() // 3, screen.get_height() - 100))
         exit_rect = exit_text.get_rect(center=(2 * screen.get_width() // 3, screen.get_height() - 100))
         screen.blit(replay_text, replay_rect)
@@ -230,7 +244,7 @@ while running:
 
         # Check if the mouse is over the replay button
         if replay_rect.collidepoint(mouse_pos):
-            replay_text = text_font1.render("Replay", True, (255, 0, 0))
+            replay_text = text_font1.render("Replay", True, (0, 0, 0))
             screen.blit(replay_text, replay_rect)
 
             if mouse_clicked[0]:  # Left mouse button clicked
@@ -243,26 +257,33 @@ while running:
 
         # Check if the mouse is over the exit button
         if exit_rect.collidepoint(mouse_pos):
-            exit_text = text_font1.render("Exit", True, (255, 0, 0))
+            exit_text = text_font1.render("Exit", True, (0, 0, 0))
             screen.blit(exit_text, exit_rect)
 
             if mouse_clicked[0]:  # Left mouse button clicked
                 running = False  # Exit the game
 
     else:
-        screen.fill((0, 180, 180))
+
+        global b1
+        global b2
+        global b3
+        global b4
+        global b5
+
+        # screen.fill((0, 180, 180))
+        if fullscreen:
+            screen.blit(full_screen_image, (0, 0))
+        else:
+            screen.blit(screen_image, (0, 0))
 
         header_line = pygame.draw.line(screen, (0, 0, 0), (0, 35), (screen.get_width(), 35), 2)
 
         show_randInt(str(I), text_font1, (0, 0, 0))
 
-        b1 = Balloon(res[0][0], res[0][1], b_img_1)
-        b2 = Balloon(res[1][0], res[1][1], b_img_2)
-        b3 = Balloon(res[2][0], res[2][1], b_img_3)
-        b4 = Balloon(res[3][0], res[3][1], b_img_4)
-        b5 = Balloon(res[4][0], res[4][1], b_img_5)
-
-        # For input from keyboard.
+        # Stopping game loop when timer over
+        if start < 0:
+            running = False
 
         # Player clamping in window
         tmpY = playerY + playerY_change
@@ -274,26 +295,69 @@ while running:
 
         show_player(playerX, playerY)
 
-        b1.show_balloon()
-        # print(b1.b_ratio_x)
-        b2.show_balloon()
-        b3.show_balloon()
-        b4.show_balloon()
-        b5.show_balloon()
+        player_rect = pygame.Rect(playerX, playerY, 10, 10)
+
+        if flg1 == 1:
+            res.clear()
+            l1.clear()
+            get_cord_list()
+
+        create_obj()
+
+        b1_rect = pygame.Rect(b1.balloonX, b1.balloonY, 64, 64)
+        b2_rect = pygame.Rect(b2.balloonX, b2.balloonY, 64, 64)
+        b3_rect = pygame.Rect(b3.balloonX, b3.balloonY, 64, 64)
+        b4_rect = pygame.Rect(b4.balloonX, b4.balloonY, 64, 64)
+        b5_rect = pygame.Rect(b5.balloonX, b5.balloonY, 64, 64)
+
+        # for checking the collision between balloons.
+        for x in range(15):
+            if b1_rect.colliderect(b2_rect):
+                flg2 = 1
+            elif b1_rect.colliderect(b3_rect):
+                flg2 = 1
+            elif b1_rect.colliderect(b4_rect):
+                flg2 = 1
+            elif b1_rect.colliderect(b5_rect):
+                flg2 = 1
+            elif b2_rect.colliderect(b3_rect):
+                flg2 = 1
+            elif b2_rect.colliderect(b4_rect):
+                flg2 = 1
+            elif b2_rect.colliderect(b5_rect):
+                flg2 = 1
+            elif b3_rect.colliderect(b4_rect):
+                flg2 = 1
+            elif b3_rect.colliderect(b5_rect):
+                flg2 = 1
+            elif b4_rect.colliderect(b5_rect):
+                flg2 = 1
+
+            if flg2 == 1:
+                get_cord_list()
+                create_obj()
+                b1_rect = pygame.Rect(b1.balloonX, b1.balloonY, 64, 64)
+                b2_rect = pygame.Rect(b2.balloonX, b2.balloonY, 64, 64)
+                b3_rect = pygame.Rect(b3.balloonX, b3.balloonY, 64, 64)
+                b4_rect = pygame.Rect(b4.balloonX, b4.balloonY, 64, 64)
+                b5_rect = pygame.Rect(b5.balloonX, b5.balloonY, 64, 64)
+            elif flg2 == 0:
+                break
+
+        show_balloons()
 
         if I == 1:
-            tmp = b1
+            tmp1 = b1_rect
         if I == 2:
-            tmp = b2
+            tmp1 = b2_rect
         if I == 3:
-            tmp = b3
+            tmp1 = b3_rect
         if I == 4:
-            tmp = b4
+            tmp1 = b4_rect
         if I == 5:
-            tmp = b5
+            tmp1 = b5_rect
 
-        if (tmp.balloonX + 0) <= playerX <= (tmp.balloonX + 64) and (tmp.balloonY + (-10)) <= playerY <= (
-                tmp.balloonY + 64):
+        if player_rect.colliderect(tmp1):
             res.clear()
             l1.clear()
             get_cord_list()
@@ -301,14 +365,19 @@ while running:
             pop_sound.play()
             playerScore += 1
             flag = 1
-        if (flag == 1):
+
+        if flag == 1:
             choosenImg = b_choose()
             flag = 0
-        start -= 1
-        clock.tick(100)
-        show_score(10, 10, 20, (0, 0, 0))
-        show_timer((screen.get_width() - 130), 10, "Time : " + str(int(start / 100)), text_font, (0, 0, 0))
 
+        # show_score("Score : " + str(playerScore), text_font, (0, 0, 0))
+        show_score(10, 10, 20, (0, 0, 0))
+        show_timer("Time : " + str(int(start / 100)), text_font, (0, 0, 0))
+        start -= 1
+
+        flg1 = 0
+
+    # For input from keyboard.
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
@@ -316,30 +385,30 @@ while running:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP or event.key == pygame.K_w:
-                playerY_change = -5
+                playerY_change = -8
             if event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                playerY_change = 5
+                playerY_change = 8
             if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                playerX_change = -5
+                playerX_change = -8
             if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                playerX_change = 5
+                playerX_change = 8
             if event.key == pygame.K_ESCAPE:
                 running = False
             if event.key == pygame.K_f:
                 # Getting the relative position of player and balloon to the size of fullscreen.
                 p_ratio_x = playerX / screen.get_width()
                 p_ratio_y = playerY / screen.get_height()
-                b1.get_ratio()
                 fullscreen = not fullscreen
                 if fullscreen:
                     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                    playerX = screen.get_width() * p_ratio_x
+                    playerY = screen.get_height() * p_ratio_y
                 else:
                     screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
                     # Reassigning the position of player and balloon according to the previous relative position in fullscreen mode.
                     playerX = screen.get_width() * p_ratio_x
                     playerY = screen.get_height() * p_ratio_y
-                    b1.reposition()
-                    # print(b1.balloonX)
+                    flg1 = 1
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_DOWN or event.key == pygame.K_s:
@@ -347,4 +416,5 @@ while running:
             if event.key == pygame.K_LEFT or event.key == pygame.K_a or event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                 playerX_change = 0
 
+    clock.tick(100)
     pygame.display.update()
