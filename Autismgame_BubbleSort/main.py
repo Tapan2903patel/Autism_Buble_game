@@ -9,9 +9,8 @@ pygame.init()
 
 # create the screen
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
-screen_image = pygame.image.load('bubblesort_game_screen.jpg')
-full_screen_image = pygame.image.load('bubblesort_game_fullscreen.png')
-# screen_image = pygame.image.load('game_bg.jpg')
+full_screen_image = pygame.image.load('bubblesort_game_screen_final.png')
+
 
 # Title and Icon
 pygame.display.set_caption("Bubble Sort")
@@ -36,18 +35,14 @@ player_rect = playerImg.get_rect()
 
 
 def show_game_over():
+    scaled_background = pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
+    screen.blit(scaled_background, (0, 0))
     if fullscreen:
         game_over = game_over_text_fs.render("GAME OVER ", True, (255, 255, 223))
-        # screen.fill((255, 255, 255))
-        scaled_background = pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
-        screen.blit(scaled_background, (0, 0))
         show_score((2.25 * screen.get_width() // 5), (3 * screen.get_height() // 4) - 40, 32, (255, 255, 255))
         game_over_rect = game_over.get_rect(center=((2.9 * screen.get_width() // 5) - 73, screen.get_height() - 490))
     else:
         game_over = game_over_text.render("GAME OVER ", True, (255, 255, 223))
-        # screen.fill((255, 255, 255))
-        scaled_background = pygame.transform.scale(bg, (screen.get_width(), screen.get_height()))
-        screen.blit(scaled_background, (0, 0))
         show_score((2.25 * screen.get_width() // 5) - 10, (3 * screen.get_height() // 4) - 40, 25, (255, 255, 255))
         game_over_rect = game_over.get_rect(center=((2.9 * screen.get_width() // 5) - 48, screen.get_height() - 430))
     screen.blit(game_over, game_over_rect)
@@ -72,7 +67,6 @@ text_font1 = pygame.font.SysFont(None, 50)
 def show_score(x, y, size, text_col):
     score = pygame.font.Font('freesansbold.ttf', size)
     final_score = score.render("Score : " + str(playerScore), True, text_col)
-    # scoreImg = font.render(text, True, text_col)
     screen.blit(final_score, (x, y))
 
 
@@ -271,14 +265,10 @@ while running:
         global b4
         global b5
 
-        # screen.fill((0, 180, 180))
-        if fullscreen:
-            screen.blit(full_screen_image, (0, 0))
-        else:
-            screen.blit(screen_image, (0, 0))
-
+        # Game screen & its elements
+        scaled_game_background = pygame.transform.scale(full_screen_image, (screen.get_width(), screen.get_height()))
+        screen.blit(scaled_game_background, (0, 0))
         header_line = pygame.draw.line(screen, (0, 0, 0), (0, 35), (screen.get_width(), 35), 2)
-
         show_randInt(str(I), text_font1, (0, 0, 0))
 
         # Stopping game loop when timer over
@@ -370,7 +360,6 @@ while running:
             choosenImg = b_choose()
             flag = 0
 
-        # show_score("Score : " + str(playerScore), text_font, (0, 0, 0))
         show_score(10, 10, 20, (0, 0, 0))
         show_timer("Time : " + str(int(start / 100)), text_font, (0, 0, 0))
         start -= 1
