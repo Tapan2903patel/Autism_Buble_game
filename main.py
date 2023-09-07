@@ -10,7 +10,7 @@ pygame.init()
 # create the screen
 screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
 
-# Title and Icon
+# Title and Icon for game window.
 pygame.display.set_caption("Bubble Sort")
 icon = pygame.image.load('Diamond_Block-MC-Square.png')
 pygame.display.set_icon(icon)
@@ -27,6 +27,7 @@ playerScore = 0
 player_rect = playerImg.get_rect()
 
 
+# Showing Player on the game window
 def show_player(x, y):
     screen.blit(playerImg, (x, y))
 
@@ -34,26 +35,31 @@ def show_player(x, y):
 # Converting string to img for rendering text on window. There is no direct support for printing text on the window in 'pygame'
 text_font = pygame.font.SysFont(None, 30)
 text_font1 = pygame.font.SysFont(None, 50)
+
+# Showing score on the game window
 def show_score(text, font, text_col):
     scoreImg = font.render(text, True, text_col)
     screen.blit(scoreImg, (10, 10))
 
 
-# Timer
+# Timer to stop the game
 clock = pygame.time.Clock()
 start = 2599
 
 
+# Showing timer on the game window
 def show_timer(text, font, text_col):
     timerImg = font.render(text, True, text_col)
     screen.blit(timerImg, ((screen.get_width() - 130), 10))
 
 
+# Showing random integer on the game window for telling user that which balloon should be popped
 def show_randInt(text, font, text_col):
     randIntImg = font.render(text, True, text_col)
     screen.blit(randIntImg, (int(screen.get_width() / 2), 2))
 
 
+# Assigning balloon images to a variable for further use in creating objects of that particular balloons
 b_img_1 = 'balloon_64-1.png'
 b_img_2 = 'balloon_64-2.png'
 b_img_3 = 'balloon_64-3.png'
@@ -61,6 +67,7 @@ b_img_4 = 'balloon_64-4.png'
 b_img_5 = 'balloon_64-5.png'
 
 
+# Main balloon class
 class Balloon:
 
     def __init__(self, x, y, img_name):
@@ -72,7 +79,7 @@ class Balloon:
         screen.blit(self.balloonImg, (self.balloonX, self.balloonY))
 
 
-
+# Choosing which balloon should be popped.
 I = 1
 def b_choose():
     global I
@@ -90,61 +97,21 @@ def b_choose():
         return b_img_5
 
 
+# Getting random coordinates with use of random function and will be used in "get_cord_list()" function.
 def get_cord():
     x = random.randint(0, (screen.get_width() - 64))
     y = random.randint(53, (screen.get_height() - 100))
     return x, y
 
 
-l1 = [(604, 114), (17, 170), (269, 285), (51, 146), (328, 424)]
+# Initial list for the coordinates of the balloon.
 res = [(604, 114), (17, 170), (269, 285), (51, 146), (328, 424)]
 
-flg = 0
-count = 0
-cnt = 0
+
+# This function will give the coordinate list for 5 balloon and which has low possibility of getting overlapped.
 def get_cord_list():
-    global count
-    global flg
-    count = 0
-    for j in range(25):
-        l1.append(get_cord())
-        for i in l1:
-            if count == 0:
-                res.append(i)
-                count += 1
-            elif count == 1:
-                flg = 0
-                for k in range(1):
-                    if (not(i[0] + 64) > res[k][0] > i[0]) and (not(i[1] + 64) > res[k][1] > i[1]) and (len(res) <= 4):
-                        flg += 1
-                if flg == 1:
-                    res.append(i)
-                    count += 1
-            elif count == 2:
-                flg = 0
-                for k in range(2):
-                    if (not(i[0] + 64) > res[k][0] > i[0]) and (not(i[1] + 64) > res[k][1] > i[1]) and (len(res) <= 4):
-                        flg += 1
-                if flg == 2:
-                    res.append(i)
-                    count += 1
-            elif count == 3:
-                flg = 0
-                for k in range(3):
-                    if (not(i[0] + 64) > res[k][0] > i[0]) and (not(i[1] + 64) > res[k][1] > i[1]) and (len(res) <= 4):
-                        flg += 1
-                if flg == 3:
-                    res.append(i)
-                    count += 1
-            elif count == 4:
-                flg = 0
-                for k in range(4):
-                    if (not(i[0] + 64) > res[k][0] > i[0]) and (not(i[1] + 64) > res[k][1] > i[1]) and (len(res) <= 4):
-                        flg += 1
-                if flg == 4:
-                    res.append(i)
-                    count += 1
-        l1.clear()
+    for j in range(5):
+        res.append(get_cord())
 
 
 def create_obj():
@@ -168,9 +135,9 @@ def show_balloons():
     b5.show_balloon()
 
 
-
 # Game loop
 cnt = 0
+count = 0
 flg1 = 0
 flg2 = 0
 flag = 0
@@ -193,8 +160,8 @@ while running:
     show_randInt(str(I), text_font1, (0, 0, 0))
 
     # Stopping game loop when timer over
-    # if start < 0:
-    #     running = False
+    if start < 0:
+        running = False
 
     # For input from keyboard.
     for event in pygame.event.get():
@@ -249,51 +216,63 @@ while running:
 
     if flg1 == 1:
         res.clear()
-        l1.clear()
         get_cord_list()
 
     create_obj()
 
-    b1_rect = pygame.Rect(b1.balloonX, b1.balloonY, 64, 64)
-    b2_rect = pygame.Rect(b2.balloonX, b2.balloonY, 64, 64)
-    b3_rect = pygame.Rect(b3.balloonX, b3.balloonY, 64, 64)
-    b4_rect = pygame.Rect(b4.balloonX, b4.balloonY, 64, 64)
-    b5_rect = pygame.Rect(b5.balloonX, b5.balloonY, 64, 64)
+    b1_rect = pygame.Rect(b1.balloonX, b1.balloonY, 100, 100)
+    b2_rect = pygame.Rect(b2.balloonX, b2.balloonY, 100, 100)
+    b3_rect = pygame.Rect(b3.balloonX, b3.balloonY, 100, 100)
+    b4_rect = pygame.Rect(b4.balloonX, b4.balloonY, 100, 100)
+    b5_rect = pygame.Rect(b5.balloonX, b5.balloonY, 100, 100)
 
 
-    #for checking the collision between balloons.
-    for x in range(15):
+    # for checking the collision between balloons.
+    while cnt < 1:
         if b1_rect.colliderect(b2_rect):
+            cnt += 1
             flg2 = 1
         elif b1_rect.colliderect(b3_rect):
+            cnt += 1
             flg2 = 1
         elif b1_rect.colliderect(b4_rect):
+            cnt += 1
             flg2 = 1
         elif b1_rect.colliderect(b5_rect):
+            cnt += 1
             flg2 = 1
         elif b2_rect.colliderect(b3_rect):
+            cnt += 1
             flg2 = 1
         elif b2_rect.colliderect(b4_rect):
+            cnt += 1
             flg2 = 1
         elif b2_rect.colliderect(b5_rect):
+            cnt += 1
             flg2 = 1
         elif b3_rect.colliderect(b4_rect):
+            cnt += 1
             flg2 = 1
         elif b3_rect.colliderect(b5_rect):
+            cnt += 1
             flg2 = 1
         elif b4_rect.colliderect(b5_rect):
+            cnt += 1
             flg2 = 1
 
         if flg2 == 1:
+            res.clear()
             get_cord_list()
             create_obj()
-            b1_rect = pygame.Rect(b1.balloonX, b1.balloonY, 64, 64)
-            b2_rect = pygame.Rect(b2.balloonX, b2.balloonY, 64, 64)
-            b3_rect = pygame.Rect(b3.balloonX, b3.balloonY, 64, 64)
-            b4_rect = pygame.Rect(b4.balloonX, b4.balloonY, 64, 64)
-            b5_rect = pygame.Rect(b5.balloonX, b5.balloonY, 64, 64)
-        elif flg2 == 0:
+            b1_rect = pygame.Rect(b1.balloonX, b1.balloonY, 100, 100)
+            b2_rect = pygame.Rect(b2.balloonX, b2.balloonY, 100, 100)
+            b3_rect = pygame.Rect(b3.balloonX, b3.balloonY, 100, 100)
+            b4_rect = pygame.Rect(b4.balloonX, b4.balloonY, 100, 100)
+            b5_rect = pygame.Rect(b5.balloonX, b5.balloonY, 100, 100)
+        if flg2 == 0:
             break
+        flg2 = 0
+        cnt = 0
 
     show_balloons()
 
@@ -310,7 +289,6 @@ while running:
 
     if player_rect.colliderect(tmp1):
         res.clear()
-        l1.clear()
         get_cord_list()
         playerScore += 1
         flag = 1
@@ -324,6 +302,5 @@ while running:
     start -= 1
 
     flg1 = 0
-
     clock.tick(100)
     pygame.display.update()
